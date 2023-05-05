@@ -229,7 +229,7 @@ def main(train_path, test_path, accuracyOnt, test_size, remaining_size, learning
                 # embed_update = tf.assign(word_embedding, tf.concat(0, [tf.zeros([1, FLAGS.embedding_dim]), word_embedding[1:]]))
                 # sess.run(embed_update)
                 trainacc += _trainacc
-                #saver.save(sess, save_dir, global_step=step)  # uncomment to obtain graph of model
+                #saver.save(sess, save_dir, global_step=step)  # uncomment to obtain latest graph of model
                 traincnt += numtrain
 
             acc, cost, cnt = 0., 0., 0
@@ -276,8 +276,7 @@ def main(train_path, test_path, accuracyOnt, test_size, remaining_size, learning
                 max_ty = ty
                 max_py = py
                 max_prob = p
-                saver.save(sess, save_dir, global_step=step)  # uncomment to obtain graph of model
-                #best_graph(save_dir, best_dir)  # Copies the, up to now, best graph to a new directory called 'Best'
+                saver.save(sess, save_dir, global_step=step)  # uncomment to obtain the best graph of model
 
             #Print time ETA
             Time_passed = time.time() - start_lcr_time
