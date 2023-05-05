@@ -11,12 +11,18 @@ import re
 import argparse
 
 parser = argparse.ArgumentParser(description='Create the embeddings using HuggingFace BERT data')
-parser.add_argument('--input', required=True, help="Path to input file containing text, target and label")
-parser.add_argument('--out-emb', required=True, help="Path to save the embeddings data")
-parser.add_argument('--out-rec', required=True, help="Path to save records of embeddings")
+#parser.add_argument('--input', required=True, help="Path to input file containing text, target and label")
+#parser.add_argument('--out-emb', required=True, help="Path to save the embeddings data")
+#parser.add_argument('--out-rec', required=True, help="Path to save records of embeddings")
 parser.add_argument('--decoding', action='store_true', default=False,
                     help="Pass this argument if using the records data input files")
 args = parser.parse_args()
+
+
+input = "C:\\Users\\Kelvin\\Desktop\\Thesis\\Prior Papers\\HAABSA_plusplus\\venv\\data\\programGeneratedData\\raw_data2016.txt"
+out_emb = "C:\\Users\\Kelvin\\Desktop\\Thesis\\Prior Papers\\HAABSA_plusplus\\venv\\data\\programGeneratedData\\New\\embeddings.txt"
+out_rec = "C:\\Users\\Kelvin\\Desktop\\Thesis\\Prior Papers\\HAABSA_plusplus\\venv\\data\\programGeneratedData\\New\\records.txt"
+
 
 tokenizer = BertTokenizer.from_pretrained('google/bert_uncased_L-12_H-768_A-12')
 model = AutoModel.from_pretrained("google/bert_uncased_L-12_H-768_A-12", output_hidden_states=True)
@@ -34,7 +40,7 @@ def get_embeddings(text):
 
     return embeddings
 
-with open(args.input) as file:
+with open(input) as file:
     data = file.readlines()
 
 decoding = args.decoding
@@ -86,9 +92,9 @@ for i in range(0, len(data), 3):
         records += '\n'.join([' '.join(text_record), ' '.join(target_record)]) + '\n' + data[i+2]
     all_embeddings.extend([t + ' ' + ' '.join(e.astype('str')) + '\n' for t, e in zip(tokens_num, embeddings)])
 
-with open(args.out_rec, 'w') as file:
+with open(out_rec, 'w') as file:
     file.writelines(records.strip())
-with open(args.out_emb, 'w') as file:
+with open(out_emb, 'w') as file:
     all_embeddings[-1] = all_embeddings[-1].strip()
     file.writelines(all_embeddings)
 
