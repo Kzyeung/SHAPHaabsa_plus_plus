@@ -4,9 +4,9 @@ from ordered_set import OrderedSet
 
 
 
-data_predicted = "C:/Users/Kelvin/Desktop/Thesis/Prior Papers/HAABSA_plusplus/venv/data/programGeneratedData/768remainingtestdata2016.txt" #This is the data that I want to predict
-embedding_file = "C:/Users/Kelvin/Desktop/Thesis/Prior Papers/HAABSA_plusplus/venv/data/programGeneratedData/768embedding2016.txt" #The fine tuned BERT model
-model_path = 'C:\\Users\\Kelvin\\Desktop\\Thesis\\Prior Papers\\HAABSA_plusplus\\venv\\trainedModelMaria\\2016\\Best\\-188' #The model graph file
+data_predicted = "C:/Users/Kelvin/Desktop/Thesis/venv/data/programGeneratedData/768remainingtestdata2016.txt" #This is the data that I want to predict
+embedding_file = "C:/Users/Kelvin/Desktop/Thesis/venv/data/programGeneratedData/768embedding2016.txt" #The fine tuned BERT model
+model_path = 'C:\\Users\\Kelvin\\Desktop\\Thesis\\venv\\trainedModelMaria\\2016\\Best\\-188' #The model graph file
 
 def model_predictions(data_predicted):
     model = 'Maria'
