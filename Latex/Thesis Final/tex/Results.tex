@@ -1,0 +1,155 @@
+\chapter{Results}
+    \label{chap:results}
+
+Chapter \ref{chap:results} presents the results of our SHAP models and the interpretation thereof. First, Section \ref{sec:shap_local} demonstrates the use of SHAP on local instances, as sentiment classifications of single sentences are explicated. We compare the results of SHAP model 1 and model 2 and the traits of each model. Section \ref{sec:shap_global} continues to accumulate SHAP results for both model 1 and 2 to obtain global inferences on the LCR-Rot-hop++ model. 
+
+\section{SHAP local}
+    \label{sec:shap_local}
+As SHAP allows us to interpret local model predictions, we use both SHAP model 1 and SHAP model 2 to analyze the contribution of each word. Table \ref{tab:shap1_sen1} shows the results of SHAP model 1 on a sentence that is incorrectly classified by the model, sorted by sentiment class prediction.
+As Table \ref{tab:shap1_sen1} reveals, sentence $X_1:$ \textit{``The bus boy even spotted that my table was shaking a stabilized it for me"} is classified as negative, even though the sentiment is positive in reality. The columns $\Phi_1, \Phi_0, \Phi{-1}$ show the SHAP values of each word, which indicates their contribution towards a positive, neutral, and negative sentiment prediction respectively. The SHAP values for the target word \textit{'bus boy'} equals the base value which is the prediction when all context words are masked. Together they add up to the sentiment classification probabilities for each class.
+
+\begin{table}[ht]
+\caption{SHAP model 1 results sentence $X_1$}
+\centering
+\begin{tabular}{p{22mm} c r r r c}
+\multicolumn{6}{l}{{\textit{The  \underline{bus boy} even spotted that my table was shaking a stabilized it for me}}}\\
+\cmidrule(lr){2-5}%\toprule
+&\textbf{Target:}    &   \multicolumn{3}{r}{bus boy}\\
+&\textbf{Sentiment:} & \multicolumn{3}{r}{Positive}\\
+&\textbf{Prediction:} & \multicolumn{3}{r}{Negative}\\
+\cmidrule(lr){2-5}
+&$w_n$           &   $\phi_1$    &   $\phi_0$    & $\phi_{-1}$\\
+\cmidrule(lr){2-2}     \cmidrule(lr){3-5}%     \cmidrule(lr){3-3}    \cmidrule(lr){4-4}
+&the                &   -0.003      &   -0.054      &   0.057\\
+&spotted            &   -0.031      &   -0.007      &   0.037\\
+&was                &   -0.016      &   -0.001      &   0.017\\
+&it                 &   -0.008      &   -0.003      &   0.011\\
+&table              &   -0.009      &   -0.001      &   0.010\\
+&shaking            &   -0.007      &   -0.001      &   0.009\\
+&even               &   0.003       &   -0.011      &   0.008\\
+&a                  &   0.002       &   -0.007      &   0.006\\
+&stabilized         &   0.005       &   -0.008      &   0.003\\
+&that               &   0.014       &   -0.014      &   0.000\\
+&my                 &   0.025       &   -0.004      &   -0.021\\
+&me                 &   0.037       &   -0.011      &   -0.026\\
+&for                &   0.036       &   -0.008      &   -0.029\\
+&\textbf{bus boy}   &   0.365       &   0.136       &   0.498\\
+\cmidrule(lr){2-5}
+&P-value & \multicolumn{1}{c}{0.412} & \multicolumn{1}{c}{0.005} & \multicolumn{1}{c}{\textbf{0.582}}
+\end{tabular}
+\label{tab:shap1_sen1}
+\end{table}
+
+Table \ref{tab:shap1_sen1} shows that the words \textit{`the'}, \textit{`spotted'}, and \textit{`was'} contribute the most towards a negative sentiment prediction. This does not immediately make sense from a linguistic point of view, however it can be explained by the fact that SHAP model 1 computes word embeddings from the complete sentence, where words contain information about the original context. The context of the word \textit{`the'} is therefore most associated with a negative sentiment, as the methodology of SHAP model 1 implies that the embedding of \textit{`the'} has captured a context that is similar to other contextual embeddings with a negative sentiment. Likewise, the embedding vectors for \textit{`spotted'} and \textit{`was'} from the original sentence are the closest to other embedding vectors with negative associations. 
+
+The word \textit{`the'} also contains the largest absolute value towards the neutral sentiment classification, contributing towards a low probability of a neutral sentiment. This indicates that the contextual word embeddings of \textit{`the'} are furthest away from neutral embeddings. The positive SHAP values for \textit{`the'} are low; similar to the other context words, SHAP values indicate that words mostly have an effect on two sentiment classes. 
+The base values from the model are highest for positive and negative sentiment, which implies that the target word \textit{`bus boy'} is mostly related to a negative sentiment. A low base value towards the neutral classification can be explained by the unbalanced dataset, because neutral sentiments are in a clear minority. The fact that the positive base value is lower than the negative base value means that the trained model associates the target with negative words. Although \textit{`bus boy'} does not seem to contain any negative meaning semantically, it is likely that words alike are uncommon in a dataset about restaurant reviews, encouraging the model to fit similar words on the small amount of data it does have, which is implied to be negative.
+
+Table \ref{tab:shap2_sen1} presents the results of SHAP model 2 on the same sentence. The p-values are identical, since both SHAP model 1 and 2 aggregate towards the embeddings of the full sentence. Nevertheless, the SHAP values are significantly different, as SHAP model 2 regenerates the BERT embeddings for every single subset $S \subseteq W \in X_1$, capturing information about a different context each time. This results in the word \textit{`shaking'} as the highest contributor towards the negative sentiment class. Words without semantic meaning like \textit{`the'}, \textit{`it'}, and \textit{`a'} still score relatively high, which implies that the marginal value of adding these words to subsets where they don't exist have a relatively large effect.
+
+Linguistically, the text \textit{`table was shaking'} is the only part that has a negative connotation, which suggests that model 2 is more useful in terms of determining the individual words that lead to a negative prediction, rather than the context the word is captured in. Table \ref{tab:shap2_sen1} shows \textit{`shaking'} with the highest contribution, while Table \ref{tab:shap1_sen1} implies that shaking has a significantly lower effect towards any prediction. Model 1 assigns a significantly larger contribution towards functions words such as \textit{`the'} and \textit{`was'}. Although neither models shows a very large difference between positive and negative sentiment probability, it seems credible that \textit{`shaking'} is most likely to have contributed most towards a final negative classification as shown by model 2. Thus, model 2 seems to better capture the effect of individual words on the sentiment and the context, while model 1 more likely presents meaning of the context that the word exists in.
+
+\vspace{\baselineskip}
+\begin{table}[ht]
+\caption{SHAP model 2 results sentence $X_1$}
+\centering
+\begin{tabular}{p{21mm} c r r r c}
+\multicolumn{6}{l}{{\textit{The  \underline{bus boy} even spotted that my table was shaking a stabilized it for me}}}\\
+\cmidrule(lr){2-5}%\toprule
+&\textbf{Target:}    &   \multicolumn{3}{r}{fish}\\
+&\textbf{Sentiment:} & \multicolumn{3}{r}{Positive}\\
+&\textbf{Prediction:} & \multicolumn{3}{r}{Negative}\\
+\cmidrule(lr){2-5}
+&$w_n$           &   $\phi_1$    &   $\phi_0$    & $\phi_{-1}$\\
+\cmidrule(lr){2-2}     \cmidrule(lr){3-5}%     \cmidrule(lr){3-3}    \cmidrule(lr){4-4}
+&shaking            &   -0.055  &   -0.009  &   0.064\\
+&the                &   0.015   &   -0.050  &   0.035\\
+&my                 &   -0.021  &   -0.003  &   0.024\\
+&me                 &   0.015   &   -0.035  &   0.020\\
+&it                 &   -0.016  &   -0.003  &   0.019\\
+&a                  &   -0.006  &   -0.010  &   0.016\\
+&spotted            &   -0.009  &   -0.004  &   0.013\\
+&was                &   -0.001  &   -0.008  &   0.009\\
+&stabilized         &   -0.008  &   0.006   &   0.002\\
+&table              &   0.003   &   -0.001  &   -0.002\\
+&that               &   0.015   &   -0.007  &   -0.008\\
+&even               &   0.013   &   0.005   &   -0.018\\
+&for                &   0.064   &   -0.009  &   -0.055\\
+&\textbf{bus boy}   &   0.403   &   0.133   &   0.463\\
+\cmidrule(lr){2-5}
+&P-value & \multicolumn{1}{c}{$0.412$} & \multicolumn{1}{c}{0.005} & \multicolumn{1}{c}{\textbf{0.582}}
+\end{tabular}
+\label{tab:shap2_sen1}
+\end{table}
+
+\vspace{\baselineskip}
+As SHAP model 2 is presumed to assign contribution more towards individual words, we present one more local interpretation using SHAP model 2. Table \ref{tab:shap2_sen2} shows the results of the model on a correctly predicted sentence. In this case the word \textit{`lower'} is attributed the highest contribution towards a negative sentiment. In contrast to the SHAP models on sentence $X_1$, \textit{`lower'} seems to oppose both a positive and neutral sentiment. Following \textit{`lower'}, the words \textit{`we'}, \textit{`been'}, and \textit{`have'} are shown to have a significant contribution as well. These words also lack semantic meaning, as they act as function words. The fact that they still represent a large part of the contribution towards a negative sentiment implies that these words still add important information about the context, possibly defining how words are related to each other.
+Lastly, \textit{`should'} and \textit{`amount'} show large SHAP values as well, although towards the positive sentiment. In the end, these are offset by the combination of the other words, which contribute negatively towards a positive sentiment. 
+
+
+\vspace{\baselineskip}
+\begin{table}[ht]
+\caption{SHAP model 2 results sentence $X_2$}
+\centering
+\begin{tabular}{p{15mm} c r r r c}
+\multicolumn{6}{l}{{\textit{For the amount of \underline{food} we got the prices should have been lower.}}}\\
+\cmidrule(lr){2-5}%\toprule
+&\textbf{Target:}    &   \multicolumn{3}{r}{food}\\
+&\textbf{Sentiment:} & \multicolumn{3}{r}{Negative}\\
+&\textbf{Prediction:} & \multicolumn{3}{r}{Negative}\\
+\cmidrule(lr){2-5}
+&$w_n$           &   $\phi_1$    &   $\phi_0$    & $\phi_{-1}$\\
+\cmidrule(lr){2-2}     \cmidrule(lr){3-5}%     \cmidrule(lr){3-3}    \cmidrule(lr){4-4}
+&lower          &   -0.031  &   -0.029  &   0.060\\
+&we             &   -0.053  &   0.008   &   0.045\\
+&been           &   -0.029  &   -0.010  &   0.039\\
+&have           &   -0.018  &   -0.004  &   0.022\\
+&of             &   -0.028  &   0.013   &   0.015\\
+&the1           &   -0.008  &   -0.004  &   0.012\\
+&the2           &   -0.001  &   -0.008  &   0.009\\
+&prices         &   -0.001  &   -0.006  &   0.007\\
+&got            &   0.009   &   -0.012  &   0.003\\
+&for            &   0.034   &   -0.023  &   -0.001\\
+&amount         &   0.047   &   -0.021  &   -0.026\\
+&should         &   0.075   &   -0.006  &   -0.069\\
+&\textbf{food}  &   0.389   &   0.118   &   0.491\\
+\cmidrule(lr){2-5}
+&P-value & \multicolumn{1}{c}{0.387} & \multicolumn{1}{c}{0.007} & \multicolumn{1}{c}{\textbf{0.606}}
+\end{tabular}
+\label{tab:shap2_sen2}
+\end{table}
+
+\pagebreak
+\section{SHAP global}
+    \label{sec:shap_global}
+The SHAP results in \ref{sec:shap_local} are used to interpret local model outputs. The nature of the SHAP results, however, allow for the SHAP values to be aggregated to global interpretations. To achieve this, SHAP simply calculates the mean SHAP values for all words to see their average contribution over the model predictions. The global interpretations are shown separately for each sentiment class. 
+
+Since SHAP generates all possible subsets for each sentence, the computational times is relatively long. For this reason, 5\% of the dataset that LCR-Rot-hop++ is tested on is randomly sampled to obtain a representative segment of 12 instances to show the capabilities of SHAP. As SHAP model 2 is determined to be better at capturing contribution of adding individual words to the text, rather than the context that they originally consist of, we aggregate words only for SHAP model 2. The model was trained over a total time of 3 hours and 12 minutes. The results are presented in \ref{tab:shap2_global1}.
+    
+\vspace{\baselineskip}
+\begin{table}[ht]
+\caption{SHAP 2 global - averaged over a random sample with similar distribution containing 5\% of the data}
+\centering
+\begin{tabular}{ l r l r l r}
+\multicolumn{2}{c}{Positive} & \multicolumn{2}{c}{Neutral} & \multicolumn{2}{c}{Negative}\\
+\cmidrule(lr){1-2} \cmidrule(lr){3-4} \cmidrule(lr){5-6}
+Word           &   $\mu_{\phi}$    &   Word    & $\mu_{\phi}$ &   Word    & $\mu_{\phi}$\\
+\cmidrule(lr){1-2}     \cmidrule(lr){3-4}     \cmidrule(lr){5-6}
+!                  &   0.24    &   continued           &   0.02 & not & 0.11\\
+plenty             &   0.12    &   of                  &   0.01 & continued & 0.07\\
+sure               &   0.10    &   we                  &   0.01 & though & 0.06\\
+pacific            &   0.09    &   stopped             &   0.01 & over- & 0.06    \\
+dinner             &   0.09    &   stabilized          &   0.01 & no & 0.06    \\
+should             &   0.08    &   either              &   0.00 & shaking & 0.06    \\
+yuppies            &   0.07    &   on                  &   0.00 & lower & 0.06    \\
+old                &   0.07    &   take                &   0.00 & removed & 0.06    \\
+variety            &   0.06    &   tenderizer          &   0.00 & rated & 0.05   \\
+\textbf{remaining} &   -0.39   &\textbf{remaining}     &   -0.87 & \textbf{remaining} & -0.3 \\
+\bottomrule
+\end{tabular}
+\label{tab:shap2_global1}
+\end{table}
+
+Table \ref{tab:shap2_global1} shows the words with the highest nine average SHAP values per sentiment classification. The last row contains the sum of the SHAP values of all remaining words. Unsurprisingly, the neutral sentiment barely has any contributing words, since neutral sentences are the clear minority in the dataset. The highest contribution belong to \textit{`!'}, \textit{`plenty'}, \textit{`sure'}, \textit{`not'}, whereas only \textit{`not'} belongs to a negative sentiment classification. This is most likely the cause of positive being the majority class, which means there are sentences and more words that are positive.
+
+It is interesting to see that \textit{`!'} tend to point towards a positive sentiment, and \textit{`not'}, since both can be used in opposite contexts as well. Although it seems plausible that both are associated with a positive and negative sentiment class respectively, it is too early to conclude this based on sample set of only 12 instances. Building a SHAP global model on the whole dataset could provide stronger evidence of sentiment characteristics, such as \textit{`!'} and \textit{`not'}. Currently, the potential insights derived from Table \ref{tab:shap2_global1} are limited, since most words are likely to appear only a single to a few times. 

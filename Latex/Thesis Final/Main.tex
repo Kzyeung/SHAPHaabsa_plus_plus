@@ -1,0 +1,69 @@
+%\documentclass{mthesis.style}		% Use the Thesis Style
+\documentclass[openany]{mthesis.style}		% Use the Thesis Style
+\graphicspath{{figures/}}			% Location of graphics files
+\hypersetup{colorlinks=true}			% Set to false for black/white printing
+
+
+\usepackage{natbib}
+\def\grafflescale{0.8}
+
+%\usepackage[export]{adjustbox}
+\usepackage{color}
+%% ----------------------------------------------------------------
+
+\begin{document}
+\frontmatter
+\title{Explaining a Deep-Learning Model for Aspect-Based Sentiment Analysis using SHAP}
+\authors{Kelvin Z. Yeung}
+\addresses{\\\deptname\\\univname}
+\date{\today}
+
+\logo{eur-logo}{1.75in}
+
+\maketitle
+
+%% ----------------------------------------------------------------
+\mainmatter
+
+
+
+\include{tex/Abstract}
+
+%
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+%
+
+%\pagenumbering{arabic}
+
+\cfoot{\thepage}
+\lhead[\leftmark]{}
+\rhead[]{\leftmark}
+
+%
+
+
+\include{tex/Introduction}
+\include{tex/Related_work}
+\include{tex/Data}
+\include{tex/Methodology}
+\include{tex/Results}
+\include{tex/Conclusion}
+
+
+%% ----------------------------------------------------------------
+
+\backmatter
+\bibliographystyle{apalike}
+\bibliography{Bibliography}
+
+\appendix
+\include{tex/Appendix}
+\end{document}
+
+%% ----------------------------------------------------------------

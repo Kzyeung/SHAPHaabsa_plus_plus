@@ -1,0 +1,78 @@
+\chapter{Data}
+    \label{chap:data}
+
+Chapter \ref{chap:data} describes the data used in this research, as well as all performed modifications. First, \ref{sec:data_description} describes the data and its characteristics. Next, \ref{sec:data_modifications} gives a detailed explanation of the modifications done before training and validating the HAABSA++ model. 
+
+\section{Data Description}
+    \label{sec:data_description}
+As our research builds upon the HAABSA++ model developed in \cite{Trusca}, the data and processing thereof are identical. Specifically, we utilize the SemEval 2016 contest data of restaurants reviews for aspect based sentiment classification. The 2015 SemEval data, which was also used in \cite{Trusca}, is a subset of the SemEval 2016 data; therefore, this research will only evaluate the SemEval 2016 dataset. 
+
+\definecolor{green}{rgb}{0,0.5,0.5}
+\definecolor{darkgreen}{rgb}{0,0.5,0.5}
+\lstdefinelanguage{XML}
+{
+  basicstyle=\ttfamily,
+  morestring=[s]{"}{"},
+  morecomment=[s]{?}{?},
+  morecomment=[s]{!--}{--},
+  commentstyle=\color{darkgreen},
+  moredelim=[s][\color{black}]{>}{<},
+  moredelim=[s][\color{red}]{\ }{=},
+  stringstyle=\color{blue},
+  identifierstyle=\color{green},
+  breaklines=true %important to fit to page
+}
+\begin{figure}
+\begin{lstlisting}[language=xml]
+<text>Everything is always cooked to perfection, the service is excellent, the decor cool and understated.</text>
+<Opinions>
+	<Opinion to="0" from="0" polarity="positive" category="FOOD#QUALITY" target="NULL"/>
+	<Opinion to="47" from="54" polarity="positive" category="SERVICE#GENERAL" target="service"/>
+	<Opinion to="73" from="78" polarity="positive" category="AMBIENCE#GENERAL" target="decor"/>
+</Opinions>
+\end{lstlisting}
+\caption{A snippet of a sentence from a review in the SemEval 2016 dataset}
+\label{fig:review_snippet}
+\end{figure}
+
+The original data is in the .xml format and includes 350 and 90 reviews in the training and test set respectively. Reviews and sentences within reviews can contain multiple aspects, which total to 2507 and 859 instances of sentiment-labeled aspects for the training and test set respectively. Each aspect is labeled a sentiment, namely `positive', `neutral', or `negative'. A target word, if present, marks the word(s) that indicates the aspect. Figure \ref{fig:review_snippet} provides a sentence from a review in the dataset. As Figure \ref{fig:review_snippet} shows, one sentence can have multiple aspects, although not every aspect has a target word. For the text ``Everything is always cooked to perfection" the target is derived from context (i.e. 'food'), which is why a target word does not exist and is set to ``NULL".
+
+
+\section{Data Modifications}
+    \label{sec:data_modifications}
+\begin{table}[ht]
+\caption{Distribution of sentiment classifications in the SemEval 2016 restaurant reviews data}
+\centering
+\begin{threeparttable}
+\begin{tabular}{l S S S S S S S S }
+\toprule
+ & \multicolumn{2}{c}{{Positive}} & \multicolumn{2}{c}{{Negative}} & \multicolumn{2}{c}{{Neutral}} & \multicolumn{2}{c}{{Total}} \\ \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+  & {N} & {\%} & {N} & {\%} & {N} & {\%} & {N} & {\%}\\
+\midrule
+  Train data 	& 1319 & 70.2	& 488 & 26.0	 & 72 & 3.8	& 1880	& 100\\
+  Test data 	& 483 & 74.3	& 135 & 20.8	 & 32 	& 4.9	& 650	& 100\\
+\bottomrule
+\end{tabular}
+\end{threeparttable}
+\label{tab:data_distribution}
+\end{table}
+To be able to conform to the HAABSA++ model requirements, the SemEval 2016 dataset is modified in a few ways. First, all sentiment classifications without a target word (i.e. target ``NULL") are removed, as LCR-Rot-hop++ from the HAABSA++ model requires a target word to be able to separate the sentence in a left-center-right part. As a result, the dataset is reduced to 1880 and 650 instances for the train and test set respectively. Table \ref{tab:data_distribution} shows the distribution of each sentiment class for the remaining instances. As Table \ref{tab:data_distribution} shows, the majority class is `positive', representing 70.2\% of the training data and 74.3\% of the test data. The data is then processed using the NLTK platform \cite{Bird}. Using the WordNet lexical database, the text is tokenized, tagged, and lemmatized \cite{Miller}. 
+
+
+
+\begin{table}[ht]
+\caption{Distribution of sentiment classifications where LCR-Rot-hop++ is utilized}
+\centering
+\begin{tabular}{S S S S S S S S }
+\toprule
+  \multicolumn{2}{c}{{Positive}} & \multicolumn{2}{c}{{Negative}} & \multicolumn{2}{c}{{Neutral}} & \multicolumn{2}{c}{{Total}} \\ 
+  \cmidrule(lr){1-2} \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+   {N} & {\%} & {N} & {\%} & {N} & {\%} & {N} & {\%}\\
+    \cmidrule(lr){1-2} \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+   144 & 58.1	& 82 & 33.0	 & 22 	& 8.9	& 248	& 100\\
+\bottomrule
+\end{tabular}
+\label{tab:remaining_data_distribution}
+\end{table}
+
+As explained in \cite{Trusca}, the model first uses an ontology as described in \cite{Schouten}. Only when the ontology proves inconclusive, a backup method is used in the form of the LCR-Rot-hop++ mechanism described in \cite{Trusca}. Since the ontology is transparent in nature, our research focuses on explaining the back up method which is the black box component of the model. Out of the 650 sentiment-labeled aspects in the test data, 402 are predicted with the ontology. The remaining 248 instances are undecided by the ontology, which is when the LCR-Rot-hop++ model is utilized. Table \ref{tab:remaining_data_distribution} shows the distribution of the sentiment classifications of the remaining 248 instances. Although positive classifications still account for the majority of the data, it has significantly decreased from 74.3\% to 58.1\%. This implies that the ontology is relatively better in predicting positive sentiment in comparison to neutral or negative classification. 
